@@ -41,11 +41,23 @@ export class Enemy extends Phaser.GameObjects.Rectangle implements Unit {
   }
 
   takeDamage(amount: number): void {
+    if (!this.isAlive() || amount <= 0) return;
+
     this.health = Math.max(0, this.health - amount);
+
+    if (this.health <= 0) {
+      this.die();
+    }
   }
 
   isAlive(): boolean {
     return this.health > 0 && this.active;
+  }
+
+  private die(): void {
+    this.target = null;
+    this.scene.events.emit("enemyKilled", this);
+    this.destroy();
   }
 
   update(time: number, delta: number): void {
