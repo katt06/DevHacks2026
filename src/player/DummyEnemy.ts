@@ -1,12 +1,13 @@
 // Developer 1: TEST ONLY. A stationary target until Developer 2's zombies exist.
 import Phaser from 'phaser';
 import type { Stats, Unit } from '../core/types';
+import type { CombatSystem } from '../combat/CombatSystem';
 
 const DUMMY_STATS: Stats = {
   maxHealth: 100,
-  attack: 0,
-  range: 0,
-  attackCooldown: 0,
+  attack: 10,
+  range: 50,
+  attackCooldown: 1000,
   moveSpeed: 0,
 };
 
@@ -19,17 +20,26 @@ export class DummyEnemy implements Unit {
   x: number;
   y: number;
 
+  private readonly combat: CombatSystem;
   private readonly rect: Phaser.GameObjects.Rectangle;
   private readonly label: Phaser.GameObjects.Text;
 
-  constructor(scene: Phaser.Scene, x: number, y: number) {
+  constructor(scene: Phaser.Scene, x: number, y: number, combat: CombatSystem) {
     this.x = x;
     this.y = y;
+    this.combat = combat;
     this.rect = scene.add.rectangle(x, y, 40, 60, 0xdc2626); // red
     this.label = scene.add
       .text(x, y - 45, '', { fontSize: '14px', color: '#ffffff' })
       .setOrigin(0.5);
     this.refreshLabel();
+  }
+
+  /** Stands still and hits the closest target in range (e.g. [player]). */
+  update(time: number, targets: readonly Unit[]): void {
+    if (!this.isAlive()) return;
+    const target = this.combat.findClosestTarget(this, targets);
+    if (target) this.combat.attack(this, target, time);
   }
 
   takeDamage(amount: number): void {

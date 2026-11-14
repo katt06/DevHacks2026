@@ -33,7 +33,10 @@ export class GameScene extends Phaser.Scene {
     this.player = new Player(this, BASE_WIDTH + 40, LANE_Y, BASE_WIDTH, GAME_WIDTH, this.combat);
 
     if (DEBUG_DUMMIES) {
-      this.dummies = [new DummyEnemy(this, 400, LANE_Y), new DummyEnemy(this, 600, LANE_Y)];
+      this.dummies = [
+        new DummyEnemy(this, 400, LANE_Y, this.combat),
+        new DummyEnemy(this, 600, LANE_Y, this.combat),
+      ];
     }
   }
 
@@ -41,7 +44,10 @@ export class GameScene extends Phaser.Scene {
     const enemies = DEBUG_DUMMIES ? this.dummies : this.enemies;
     this.player.update(time, delta, enemies);
 
-    if (DEBUG_DUMMIES) this.removeDeadDummies();
+    if (DEBUG_DUMMIES) {
+      for (const dummy of this.dummies) dummy.update(time, [this.player]);
+      this.removeDeadDummies();
+    }
   }
 
   // DEBUG
