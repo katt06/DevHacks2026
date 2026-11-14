@@ -32,4 +32,13 @@ export class Enemy extends Phaser.GameObjects.Rectangle implements Unit {
   isAlive(): boolean {
     return this.health > 0 && this.active;
   }
+
+  
+  update(time: number, delta: number): void {
+    if (!this.isAlive()) return;
+
+    // Move toward the player's base (left side).
+    this.x -= this.stats.moveSpeed * (delta / 1000);
+  }
+
 }
