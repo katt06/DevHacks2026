@@ -31,19 +31,38 @@ export class Enemy extends Phaser.GameObjects.Rectangle implements Unit {
     this.target = target;
   }
 
+
   private attack(time: number): void {
     if (!this.target || !this.target.isAlive()) return;
 
     if (time - this.lastAttackTime >= this.stats.attackCooldown) {
       this.target.takeDamage(this.stats.attack);
       this.lastAttackTime = time;
+
+      // Brief attack animation.
+      this.scene.tweens.add({
+        targets: this,
+        scaleX: 1.2,
+        duration: 80,
+        yoyo: true,
+      });
     }
   }
+
 
   takeDamage(amount: number): void {
     if (!this.isAlive() || amount <= 0) return;
 
     this.health = Math.max(0, this.health - amount);
+
+    if (this.health > 0) {
+      this.scene.tweens.add({
+        targets: this,
+        alpha: 0.5,
+        duration: 80,
+        yoyo: true,
+      });
+    }
 
     if (this.health <= 0) {
       this.die();
